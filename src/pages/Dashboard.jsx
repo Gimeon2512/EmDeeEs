@@ -107,7 +107,10 @@ const Dashboard = () => {
             ESP32 URL: {api.getConnectionStatus().baseUrl}
           </p>
           <p className="text-sm text-gray-500 mt-2">
-            Make sure the device is powered on and connected to your network.
+            Make sure this device is connected to the same WiFi network as the gate system (phone hotspot).
+          </p>
+          <p className="text-sm text-gray-500 mt-1">
+            You can update the ESP32 URL using the settings button in the header.
           </p>
         </div>
       </div>

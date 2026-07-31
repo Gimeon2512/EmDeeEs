@@ -1,12 +1,26 @@
 // Real ESP32 API layer for gate system
 // Connects to ESP32 REST API over WiFi
 
-const ESP32_BASE_URL = import.meta.env.VITE_ESP32_BASE_URL || 'http://biogate.local';
+// Get ESP32 base URL from localStorage or env variable
+const getESP32BaseUrl = () => {
+  const savedUrl = localStorage.getItem('esp32BaseUrl');
+  if (savedUrl) return savedUrl;
+  return import.meta.env.VITE_ESP32_BASE_URL || 'http://biogate.local';
+};
+
+const ESP32_BASE_URL = getESP32BaseUrl();
 
 // Connection state
 let connectionStatus = 'unknown'; // 'unknown' | 'connected' | 'disconnected'
 let lastConnectionError = null;
 let pendingStatusRequest = null;
+
+// Allow dynamic URL updates
+export const setESP32BaseUrl = (url) => {
+  localStorage.setItem('esp32BaseUrl', url);
+  // Force reload to apply new URL
+  window.location.reload();
+};
 
 // Simulated event log (ESP32 doesn't have historical events endpoint yet)
 let mockEvents = [

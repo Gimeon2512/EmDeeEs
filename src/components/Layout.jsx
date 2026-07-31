@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Settings, History, Shield, Menu, X, Sun, Moon, Wifi, WifiOff } from 'lucide-react';
-import { api } from '../api/esp32Api';
+import { LayoutDashboard, Settings as SettingsIcon, History, Shield, Menu, X, Sun, Moon, Wifi, WifiOff, Save } from 'lucide-react';
+import { api, setESP32BaseUrl } from '../api/esp32Api';
 
 const Layout = ({ children }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState('dark');
   const [connectionStatus, setConnectionStatus] = useState('unknown');
+  const [showSettings, setShowSettings] = useState(false);
+  const [esp32Url, setEsp32Url] = useState('');
 
   useEffect(() => {
     // Load theme from localStorage or system preference
@@ -39,6 +41,16 @@ const Layout = ({ children }) => {
     return () => clearInterval(interval);
   }, []);
 
+  // Load saved ESP32 URL
+  useEffect(() => {
+    const savedUrl = localStorage.getItem('esp32BaseUrl');
+    if (savedUrl) {
+      setEsp32Url(savedUrl);
+    } else {
+      setEsp32Url(import.meta.env.VITE_ESP32_BASE_URL || 'http://biogate.local');
+    }
+  }, []);
+
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
@@ -48,9 +60,15 @@ const Layout = ({ children }) => {
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/controls', label: 'Controls', icon: Settings },
+    { path: '/controls', label: 'Controls', icon: SettingsIcon },
     { path: '/events', label: 'Event Log', icon: History },
   ];
+
+  const handleSaveUrl = () => {
+    if (esp32Url.trim()) {
+      setESP32BaseUrl(esp32Url.trim());
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -79,6 +97,22 @@ const Layout = ({ children }) => {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className="flex items-center justify-center"
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: '0.5rem',
+                borderRadius: '0.5rem',
+                cursor: 'pointer',
+                color: 'var(--text-secondary)'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+            >
+              <SettingsIcon className="w-5 h-5" />
+            </button>
             <button
               onClick={toggleTheme}
               className="flex items-center justify-center"
@@ -116,6 +150,47 @@ const Layout = ({ children }) => {
           </div>
         </div>
       </header>
+
+      {/* Settings Panel */}
+      {showSettings && (
+        <div 
+          className="absolute"
+          style={{ 
+            top: '73px', 
+            right: '1.5rem', 
+            zIndex: 1000,
+            width: '320px'
+          }}
+        >
+          <div className="card" style={{ padding: '1.5rem' }}>
+            <h3 className="text-lg font-semibold text-white mb-4">ESP32 Configuration</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm text-gray-400 block mb-2">ESP32 Base URL</label>
+                <input
+                  type="text"
+                  value={esp32Url}
+                  onChange={(e) => setEsp32Url(e.target.value)}
+                  placeholder="http://biogate.local"
+                  className="input"
+                  style={{ width: '100%' }}
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Use mDNS (biogate.local) for stable connection, or direct IP if mDNS doesn't work.
+                </p>
+              </div>
+              <button
+                onClick={handleSaveUrl}
+                className="btn btn-primary"
+                style={{ width: '100%' }}
+              >
+                <Save className="w-4 h-4" />
+                Save & Reload
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="container flex">
         {/* Sidebar Navigation */}
