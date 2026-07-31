@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Settings, History, Shield, Menu, X, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, Settings, History, Shield, Menu, X, Sun, Moon, Wifi, WifiOff } from 'lucide-react';
+import { api } from '../api/esp32Api';
 
 const Layout = ({ children }) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState('dark');
+  const [connectionStatus, setConnectionStatus] = useState('unknown');
 
   useEffect(() => {
     // Load theme from localStorage or system preference
@@ -19,6 +21,22 @@ const Layout = ({ children }) => {
       setTheme(defaultTheme);
       document.documentElement.setAttribute('data-theme', defaultTheme);
     }
+  }, []);
+
+  // Poll connection status
+  useEffect(() => {
+    const checkConnection = () => {
+      const connStatus = api.getConnectionStatus();
+      setConnectionStatus(connStatus.status);
+    };
+
+    // Check immediately
+    checkConnection();
+
+    // Check every 5 seconds
+    const interval = setInterval(checkConnection, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const toggleTheme = () => {
@@ -78,8 +96,22 @@ const Layout = ({ children }) => {
               {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
             <div className="flex items-center gap-2">
-              <div style={{ width: '0.5rem', height: '0.5rem', backgroundColor: 'var(--green-primary)', borderRadius: '50%' }} className="animate-pulse"></div>
-              <span className="text-sm text-gray-400">System Online</span>
+              {connectionStatus === 'connected' ? (
+                <>
+                  <Wifi className="w-4 h-4" style={{ color: 'var(--green-primary)' }} />
+                  <span className="text-sm text-gray-400">ESP32 Connected</span>
+                </>
+              ) : connectionStatus === 'disconnected' ? (
+                <>
+                  <WifiOff className="w-4 h-4" style={{ color: 'var(--red-primary)' }} />
+                  <span className="text-sm text-gray-400">ESP32 Offline</span>
+                </>
+              ) : (
+                <>
+                  <div style={{ width: '0.5rem', height: '0.5rem', backgroundColor: 'var(--amber-primary)', borderRadius: '50%' }} className="animate-pulse"></div>
+                  <span className="text-sm text-gray-400">Connecting...</span>
+                </>
+              )}
             </div>
           </div>
         </div>

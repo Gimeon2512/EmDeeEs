@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { api } from '../api/mockApi';
+import { api } from '../api/esp32Api';
 import { 
   Activity, 
   DoorOpen, 
@@ -8,27 +8,30 @@ import {
   Clock,
   Shield,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  WifiOff
 } from 'lucide-react';
 
 const Dashboard = () => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [connectionStatus, setConnectionStatus] = useState('unknown');
 
   useEffect(() => {
-    // Initial status fetch
-    api.getStatus().then(data => {
-      setStatus(data);
-      setLoading(false);
-    });
-
-    // Start real-time updates
-    api.startRealTimeUpdates((newStatus) => {
+    // Start real-time updates with polling
+    const stopUpdates = api.startRealTimeUpdates((newStatus) => {
       setStatus(newStatus);
+      setLoading(false);
+      
+      if (newStatus.connectionError) {
+        setConnectionStatus('disconnected');
+      } else {
+        setConnectionStatus('connected');
+      }
     });
 
     return () => {
-      api.stopRealTimeUpdates();
+      stopUpdates();
     };
   }, []);
 
@@ -86,6 +89,27 @@ const Dashboard = () => {
     return (
       <div className="flex items-center justify-center" style={{ height: '16rem' }}>
         <div className="animate-spin" style={{ width: '3rem', height: '3rem', borderRadius: '50%', borderBottom: '2px solid var(--green-primary)' }}></div>
+      </div>
+    );
+  }
+
+  // Show connection error state
+  if (connectionStatus === 'disconnected' || status?.connectionError) {
+    return (
+      <div className="card" style={{ padding: '3rem' }}>
+        <div className="flex flex-col items-center justify-center text-center">
+          <WifiOff className="w-16 h-16 mb-4" style={{ color: 'var(--red-primary)' }} />
+          <h2 className="text-2xl font-semibold text-white mb-2">Device Unreachable</h2>
+          <p className="text-gray-400 mb-4">
+            {status?.lastConnectionError || 'Unable to connect to ESP32 gate controller'}
+          </p>
+          <p className="text-sm text-gray-500">
+            ESP32 URL: {api.getConnectionStatus().baseUrl}
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            Make sure the device is powered on and connected to your network.
+          </p>
+        </div>
       </div>
     );
   }

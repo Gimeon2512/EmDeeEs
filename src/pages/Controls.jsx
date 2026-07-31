@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { api } from '../api/mockApi';
+import { api } from '../api/esp32Api';
 import { 
   ToggleLeft, 
   ToggleRight, 
@@ -19,17 +19,15 @@ const Controls = () => {
   const [showEmergencyConfirm, setShowEmergencyConfirm] = useState(false);
 
   useEffect(() => {
-    api.getStatus().then(data => {
-      setStatus(data);
+    // Start real-time updates with polling
+    const stopUpdates = api.startRealTimeUpdates((newStatus) => {
+      setStatus(newStatus);
       setLoading(false);
     });
 
-    const interval = setInterval(async () => {
-      const data = await api.getStatus();
-      setStatus(data);
-    }, 1000);
-
-    return () => clearInterval(interval);
+    return () => {
+      stopUpdates();
+    };
   }, []);
 
   const handleModeToggle = async () => {

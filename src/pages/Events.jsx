@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { api } from '../api/mockApi';
+import { api } from '../api/esp32Api';
 import { 
   History, 
   Download, 
