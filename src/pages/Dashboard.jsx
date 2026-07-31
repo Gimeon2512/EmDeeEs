@@ -136,14 +136,14 @@ const Dashboard = () => {
       </div>
 
       {/* Status Cards Grid */}
-      <div className="grid grid-cols-4" style={{ gap: '1rem' }}>
-        {/* Ultrasonic Sensor */}
+      <div className="grid grid-cols-3" style={{ gap: '1rem' }}>
+        {/* Detection State (based on ESP32 state) */}
         <div className="card">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-400" style={{ marginBottom: '0.25rem' }}>Sensor Distance</p>
-              <p className="text-2xl font-bold text-white">
-                {Math.round(status.sensorDistance)} cm
+              <p className="text-sm text-gray-400" style={{ marginBottom: '0.25rem' }}>Detection State</p>
+              <p className="text-2xl font-bold text-white" style={{ textTransform: 'capitalize' }}>
+                {status.esp32State || 'Unknown'}
               </p>
             </div>
             <Activity className="w-6 h-6" style={{ color: getStatusColor('detection', status.detectionState) }} />
@@ -178,8 +178,8 @@ const Dashboard = () => {
           </div>
           <div style={{ marginTop: '0.75rem' }}>
             <span className={`badge ${
-              status.gateStatus === 'open' 
-                ? 'badge-green' 
+              status.gateStatus === 'open'
+                ? 'badge-green'
                 : status.gateStatus === 'closed'
                 ? 'badge-gray'
                 : 'badge-amber'
@@ -208,34 +208,6 @@ const Dashboard = () => {
             }`}>
               {status.mistingStatus === 'running' ? 'Active Cycle' : 'Standby'}
             </span>
-          </div>
-        </div>
-
-        {/* Battery Level */}
-        <div className="card">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-gray-400" style={{ marginBottom: '0.25rem' }}>Battery Level</p>
-              <p className="text-2xl font-bold text-white" style={{ color: getStatusColor('battery', status.batteryLevel) }}>
-                {Math.round(status.batteryLevel)}%
-              </p>
-            </div>
-            <Battery className="w-6 h-6" style={{ color: getStatusColor('battery', status.batteryLevel) }} />
-          </div>
-          <div style={{ marginTop: '0.75rem' }}>
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ 
-                  width: `${status.batteryLevel}%`,
-                  backgroundColor: status.batteryLevel > 50 
-                    ? 'var(--green-primary)' 
-                    : status.batteryLevel > 20 
-                    ? 'var(--amber-primary)' 
-                    : 'var(--red-primary)'
-                }}
-              ></div>
-            </div>
           </div>
         </div>
       </div>

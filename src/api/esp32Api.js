@@ -86,21 +86,24 @@ export const api = {
 
     pendingStatusRequest = fetchESP32('/status')
       .then(data => {
+        console.log('ESP32 raw data:', data);
         // Transform ESP32 response to match our state format
-        return {
+        const transformed = {
           gateStatus: data.gateOpen ? 'open' : 'closed',
-          sensorDistance: 150, // ESP32 doesn't provide this in status endpoint
+          sensorDistance: null, // ESP32 doesn't provide this
           detectionState: data.state === 'approaching' ? 'detected' : 'clear',
           mistingStatus: data.misting ? 'running' : 'idle',
-          batteryLevel: 87, // ESP32 doesn't provide this in status endpoint
+          batteryLevel: null, // ESP32 doesn't provide this
           mode: data.mode,
-          emergencyLockout: false, // ESP32 doesn't provide this in status endpoint
+          emergencyLockout: false, // ESP32 doesn't provide this
           lastUpdated: new Date().toISOString(),
           // Include raw ESP32 data for reference
           esp32State: data.state,
           esp32GateOpen: data.gateOpen,
           esp32Misting: data.misting,
         };
+        console.log('Transformed data:', transformed);
+        return transformed;
       })
       .finally(() => {
         pendingStatusRequest = null;
