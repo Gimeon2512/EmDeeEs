@@ -107,7 +107,10 @@ const Dashboard = () => {
             ESP32 URL: {api.getConnectionStatus().baseUrl}
           </p>
           <p className="text-sm text-gray-500 mt-2">
-            Make sure this device is connected to the same WiFi network as the gate system (phone hotspot).
+            Make sure this device's WiFi is connected to the 'BiosecurityGate' network (not your regular WiFi or mobile hotspot).
+          </p>
+          <p className="text-sm text-gray-500 mt-1">
+            You can find and join it in your device's WiFi settings — password: gate12345.
           </p>
           <p className="text-sm text-gray-500 mt-1">
             You can update the ESP32 URL using the settings button in the header.

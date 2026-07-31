@@ -47,7 +47,7 @@ const Layout = ({ children }) => {
     if (savedUrl) {
       setEsp32Url(savedUrl);
     } else {
-      setEsp32Url(import.meta.env.VITE_ESP32_BASE_URL || 'http://biogate.local');
+      setEsp32Url(import.meta.env.VITE_ESP32_BASE_URL || 'http://192.168.4.1');
     }
   }, []);
 
@@ -171,12 +171,12 @@ const Layout = ({ children }) => {
                   type="text"
                   value={esp32Url}
                   onChange={(e) => setEsp32Url(e.target.value)}
-                  placeholder="http://biogate.local"
+                  placeholder="http://192.168.4.1"
                   className="input"
                   style={{ width: '100%' }}
                 />
                 <p className="text-xs text-gray-500 mt-2">
-                  Use mDNS (biogate.local) for stable connection, or direct IP if mDNS doesn't work.
+                  Default ESP32 AP mode IP is 192.168.4.1. Update only if changed.
                 </p>
               </div>
               <button

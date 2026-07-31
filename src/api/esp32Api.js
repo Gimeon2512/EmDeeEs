@@ -5,7 +5,7 @@
 const getESP32BaseUrl = () => {
   const savedUrl = localStorage.getItem('esp32BaseUrl');
   if (savedUrl) return savedUrl;
-  return import.meta.env.VITE_ESP32_BASE_URL || 'http://biogate.local';
+  return import.meta.env.VITE_ESP32_BASE_URL || 'http://192.168.4.1';
 };
 
 const ESP32_BASE_URL = getESP32BaseUrl();
